@@ -5,8 +5,8 @@
 ## 🛠 Стек
 *   **Frontend:** React, TypeScript, Vite
 *   **Backend / БД:** Supabase (PostgreSQL, Auth, RLS)
-*   **Деплой:** Cloudflare 
-* 
+*   **Деплой:** Cloudflare
+
 ## 🚀 Как запустить локально
 
 1. Клонируйте репозиторий:
