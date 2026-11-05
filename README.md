@@ -11,8 +11,8 @@
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone <ссылка_на_репозиторий>
-   cd <название_папки>
+   git clone https://github.com/stanislavzxc/test_work_supabase
+   cd test_work_supabase
    ```
 2. Установите зависимости:
    ```bash
