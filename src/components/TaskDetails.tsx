@@ -35,8 +35,6 @@ export function TaskDetails({ taskId, profile, onBack }: { taskId: string, profi
       return setError(`Ошибка: ${updateError.message}`)
     }
 
-    // Если триггер в БД настроен, этот блок не нужен. 
-    // Если НЕТ, раскомментируй его:
     /*
     await supabase.from('task_history').insert({
       task_id: taskId,
