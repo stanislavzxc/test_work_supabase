@@ -1,75 +1,70 @@
-# React + TypeScript + Vite
+Вот готовый README. Можешь скопировать его в файл `README.md` в корне твоего проекта на GitHub. Он закрывает все требования из ТЗ (как запустить, безопасность, объяснение для руководителя).
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+# Мини-CRM «Объекты и задачи»
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Тестовое задание для 2B Studio. Система для управления задачами на строительных объектах с разграничением прав доступа на уровне базы данных.
 
-## React Compiler
+## 🛠 Стек
+*   **Frontend:** React, TypeScript, Vite
+*   **Backend / БД:** Supabase (PostgreSQL, Auth, RLS)
+*   **Деплой:** Vercel (или Netlify)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Как запустить локально
 
-## Expanding the ESLint configuration
+1. Клонируйте репозиторий:
+   ```bash
+   git clone <ссылка_на_репозиторий>
+   cd <название_папки>
+   ```
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
+3. Создайте файл `.env` в корне проекта и добавьте ключи вашего проекта Supabase:
+   ```env
+   VITE_SUPABASE_URL=ваш_url_из_supabase
+   VITE_SUPABASE_ANON_KEY=ваш_anon_ключ
+   ```
+4. Запустите проект:
+   ```bash
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🔐 Безопасность и архитектура
+Вся логика безопасности вынесена на уровень базы данных (Supabase RLS) и триггеров PostgreSQL. Фронтенд только отображает доступные действия.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Изоляция данных (RLS):** Исполнитель (worker) физически не может прочитать или изменить задачи, где он не указан как `assignee_id`. Постановщик (manager) видит всё.
+2. **Запрет неверных переходов:** В БД настроен триггер (`check_status_transition`), который не даст сменить статус в обход правил (например, из «Новая» сразу в «Принята»), даже если отправить запрос в обход интерфейса.
+3. **Неизменяемая история:** История статусов пишется автоматически триггером БД (`log_task_history`). Её нельзя подделать, изменить или удалить через API.
+4. **Секреты:** `service_role` ключ нигде не используется во фронтенде.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🧑‍💼 Объяснение для руководителя (как устроена система)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Что делает система:**
+Руководитель (Постановщик) создает строительные объекты и ставит по ним задачи, назначая конкретного сотрудника (Исполнителя). Сотрудник видит только свои задачи, берет их в работу и отправляет на проверку. Руководитель проверяет и либо принимает работу, либо отправляет на доработку с комментарием.
 
-```
+**Как защищены данные:**
+Даже если сотрудник откроет консоль браузера и попытается взломать систему, чтобы посмотреть чужие задачи или принять свою работу без проверки, — у него ничего не выйдет. База данных (Supabase) настроена так, что она проверяет каждое действие на уровне сервера. Сотрудник видит только свою зону ответственности, а историю изменений невозможно подделать.
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚠️ Известные ограничения и допущения
+*   Создание объектов и задач реализовано через простые формы на главном экране. В реальном продукте это, скорее всего, были бы модальные окна, но для тестового задания выбран самый быстрый и надежный путь.
+*   Редактирование объектов и задач не реализовано (только создание и удаление). В ТЗ упор делался на цикл жизни задачи (статусы), поэтому время было потрачено на безопасность переходов и историю.
+*   Выбор исполнителя при создании задачи реализован через выпадающий список (подгружаются пользователи с ролью `worker`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
+**Логины для тестирования (созданы вручную в Supabase):**
+*   **Постановщик (Manager):** `manager@test.com` / пароль: `123456`
+*   **Исполнитель 1 (Worker):** `worker1@test.com` / пароль: `123456`
+*   **Исполнитель 2 (Worker):** `worker2@test.com` / пароль: `123456`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
 
-```
+**Что делать дальше:**
+1. Скопируй этот текст в `README.md` в корне проекта.
+2. Запушь на GitHub.
+3. Задеплой на Vercel (не забудь добавить Environment Variables при импорте проекта).
+4. Скинь ссылку на живой сайт, ссылку на GitHub и этот README в чат на HH.
+
+Ты отлично справился! Если будут вопросы по деплою на Vercel, спрашивай.
