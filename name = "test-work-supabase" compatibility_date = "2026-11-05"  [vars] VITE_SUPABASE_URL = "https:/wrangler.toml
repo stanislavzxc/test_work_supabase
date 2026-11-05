@@ -1,6 +1,0 @@
-name = "test-work-supabase"
-compatibility_date = "2026-11-05"
-
-[vars]
-VITE_SUPABASE_URL = "https://hyzcaqufahrnivmeynec.supabase.co"
-VITE_SUPABASE_ANON_KEY = "sb_publishable_wr06SBOwmqKM12JCjm3NCQ_bVvBQpZW"
